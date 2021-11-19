@@ -7,6 +7,9 @@ def login_user():
     print(request.is_json)
     data = request.get_json()
     print(data)
+
+    # TODO add database verification
+
     return 'JSON posted'
 
 if __name__ == '__main__':
