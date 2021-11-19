@@ -12,6 +12,15 @@ def login_user():
 
     return 'JSON posted'
 
+@app.route('/signup', methods=['PUT'])
+def signup_user():
+    print(request.is_json)
+    data = request.get_json()
+    print(data)
+
+    # TODO insert into database
+    return 'JSON put'
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)
     

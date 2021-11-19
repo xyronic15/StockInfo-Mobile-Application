@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_constructors, duplicate_ignore
 
 import 'package:flutter/material.dart';
-import 'package:stocks_r_us/screens/signup_screen/signup.dart';
+import 'package:stocks_r_us/screens/signup_screen/signup_page.dart';
 import 'login.dart';
 
 class WelcomePage extends StatelessWidget {
@@ -10,8 +10,10 @@ class WelcomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextEditingController usernameController =
+        // ignore: unnecessary_new
         new TextEditingController();
     final TextEditingController passwordController =
+        // ignore: unnecessary_new
         new TextEditingController();
 
     return Scaffold(
