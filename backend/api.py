@@ -2,7 +2,7 @@ from enum import auto
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import backref
-from werkzeug.datastructures import T
+#from werkzeug.datastructures import T
 
 
 app = Flask(__name__)
@@ -19,7 +19,7 @@ class User(db.Model):
     email = db.Column(db.String(200), nullable = False)
     username = db.Column(db.String(200), nullable = False)
     password = db.Column(db.String(200), nullable = False)
-    favorites = db.relationship('Favorite', backref='user', lazy=True)
+    #favorites = db.relationship('Favorite', backref='user', lazy=True)
 
     def serialize(self):
         return {
@@ -64,11 +64,19 @@ def signup_user():
     try:
         db.session.add(new_user)
         db.session.commit()
-        return 'New user added', 200
+        return {
+            'message': 'New user added',
+            'status': 200
+            }, 200
     except:
-        return "Error adding new user", 400
+        return {
+            'message': 'Error adding user',
+            'status': 400
+            }, 400
 
 ####
+
+'''
 
 #### Stock operations
 
@@ -80,7 +88,6 @@ class Stock(db.Model):
     favorites = db.relationship('Favorite', backref='stock', lazy=True)
     
 
-
 ####
 
 #### Favorites operations
@@ -89,6 +96,7 @@ class Favorite(db.Model):
     __tablename__ = "favorites"
     userID = db.Column(db.Integer, db.ForeignKey('user.id', onupdate="CASCADE", ondelete="CASCADE"), nullable = False)
     stockID = db.Column(db.Integer, db.ForeignKey('stock.id', onupdate="CASCADE", ondelete="CASCADE"), nullable = False)
+'''
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)

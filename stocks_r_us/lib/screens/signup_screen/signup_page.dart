@@ -1,6 +1,8 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:stocks_r_us/ResponseBuilder.dart';
+import 'package:stocks_r_us/screens/home_screen/home_page.dart';
 import 'signup.dart';
 import 'package:stocks_r_us/screens/welcome_screen/welcome.dart';
 
@@ -98,11 +100,23 @@ class SignupPage extends StatelessWidget {
                                   child: GestureDetector(
                                       onTap: () {
                                         userSignup(
-                                            firstNameController.text.toString(),
-                                            lastNameController.text.toString(),
-                                            emailController.text.toString(),
-                                            userController.text.toString(),
-                                            passController.text.toString());
+                                                firstNameController.text
+                                                    .toString(),
+                                                lastNameController.text
+                                                    .toString(),
+                                                emailController.text.toString(),
+                                                userController.text.toString(),
+                                                passController.text.toString())
+                                            .then((resultData) {
+                                          if (resultData.statusCode != 400) {
+                                            Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        HomePage()));
+                                          } else {
+                                            print(resultData.message);
+                                          }
+                                        });
                                       },
                                       child: Center(
                                           child: Text(
@@ -122,6 +136,7 @@ class SignupPage extends StatelessWidget {
                                       style: TextStyle(fontSize: 15)),
                                   InkWell(
                                     onTap: () {
+                                      Navigator.pop(context);
                                       Navigator.of(context).push(
                                           MaterialPageRoute(
                                               builder: (context) =>
