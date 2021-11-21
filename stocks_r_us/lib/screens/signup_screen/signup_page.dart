@@ -26,7 +26,7 @@ class SignupPage extends StatelessWidget {
           Container(
               child: Stack(children: [
             Container(
-              padding: EdgeInsets.fromLTRB(15, 90, 0, 1),
+              padding: EdgeInsets.fromLTRB(15, 90, 0, 0),
               child: Text(
                 'Get Started',
                 style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
