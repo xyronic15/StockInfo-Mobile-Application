@@ -2,7 +2,8 @@ from enum import auto
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import backref
-from werkzeug.datastructures import T
+# from werkzeug.datastructures import T
+import json
 
 
 app = Flask(__name__)
@@ -19,7 +20,7 @@ class User(db.Model):
     email = db.Column(db.String(200), nullable = False)
     username = db.Column(db.String(200), nullable = False)
     password = db.Column(db.String(200), nullable = False)
-    favorites = db.relationship('Favorite', backref='user', lazy=True)
+    favorites = db.relationship('Favorite', backref='users', lazy=True)
 
     def serialize(self):
         return {
@@ -77,7 +78,23 @@ class Stock(db.Model):
     id = db.Column(db.Integer, nullable = False, primary_key = True)
     name = db.Column(db.String(200), nullable = False)
     ticker = db.Column(db.String(200), nullable = False)
-    favorites = db.relationship('Favorite', backref='stock', lazy=True)
+    favorites = db.relationship('Favorite', backref='stocks', lazy=True)
+    
+@app.route('/list_all_stocks', methods=['GET'])
+def list_all_stocks():
+
+    try:
+        # get all stock entries
+        stocks_iter = db.session.query(Stock).all()
+        stocks_list = []
+        for stock in stocks_iter:
+            stocks_list.append({'name': stock.name, 'ticker': stock.ticker})
+        
+        # convert to json and return
+        return json.dumps(stocks_list, indent=4)
+    except:
+        return
+   
     
 
 
@@ -87,8 +104,9 @@ class Stock(db.Model):
 
 class Favorite(db.Model):
     __tablename__ = "favorites"
-    userID = db.Column(db.Integer, db.ForeignKey('user.id', onupdate="CASCADE", ondelete="CASCADE"), nullable = False)
-    stockID = db.Column(db.Integer, db.ForeignKey('stock.id', onupdate="CASCADE", ondelete="CASCADE"), nullable = False)
+    id = db.Column(db.Integer, nullable = False, primary_key = True)
+    userID = db.Column(db.Integer, db.ForeignKey('users.id', onupdate="CASCADE", ondelete="CASCADE"), nullable = False)
+    stockID = db.Column(db.Integer, db.ForeignKey('stocks.id', onupdate="CASCADE", ondelete="CASCADE"), nullable = False)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)
