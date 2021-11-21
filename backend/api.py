@@ -4,6 +4,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import backref
 # from werkzeug.datastructures import T
 import json
+import datetime as dt
+import yfinance as yf
 
 
 app = Flask(__name__)
@@ -94,6 +96,32 @@ def list_all_stocks():
         return json.dumps(stocks_list, indent=4)
     except:
         return
+
+@app.route('/get_candle_data', methods=['GET'])
+def get_candle_data():
+
+    ticker = request.args.get('ticker')
+    period = int(request.args.get('period'))
+    print("period is a " + str(type(period)))
+    now = dt.datetime.now().strftime("%Y-%m-%d")
+    before = (dt.datetime.now() - dt.timedelta(days=period*365)).strftime("%Y-%m-%d")
+
+    try:
+        # call the load_data function
+        df = load_data(ticker, now, before)
+
+        # convert to json and return it
+        result = df.to_json(orient="records")
+        parsed = json.loads(result)
+        return json.dumps(parsed, indent=4)
+    except:
+        return
+
+# helper function to receive stock ticker data
+def load_data(ticker, now, before):
+    data = yf.download(ticker, before, now)
+    data.reset_index(inplace=True)
+    return data
 
 ####
 
