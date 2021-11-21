@@ -94,9 +94,6 @@ def list_all_stocks():
         return json.dumps(stocks_list, indent=4)
     except:
         return
-   
-    
-
 
 ####
 
@@ -107,6 +104,25 @@ class Favorite(db.Model):
     id = db.Column(db.Integer, nullable = False, primary_key = True)
     userID = db.Column(db.Integer, db.ForeignKey('users.id', onupdate="CASCADE", ondelete="CASCADE"), nullable = False)
     stockID = db.Column(db.Integer, db.ForeignKey('stocks.id', onupdate="CASCADE", ondelete="CASCADE"), nullable = False)
+
+@app.route('/list_fav', methods=['GET'])
+def list_fav():
+
+    id = request.args.get('id')
+    try:
+        # get the favourite stocks given an id
+        fav_iter = db.session.execute('SELECT stocks.name, stocks.ticker FROM favorites INNER JOIN stocks ON favorites.stockID = stocks.id WHERE favorites.userID = ' + str(id) + ';')
+        fav_list = []
+        for fav in fav_iter:
+            fav_list.append({'name': fav.name, 'ticker': fav.ticker})
+
+        # convert to json and return
+        return json.dumps(fav_list, indent=4)
+    except :
+        pass
+
+
+####
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)
