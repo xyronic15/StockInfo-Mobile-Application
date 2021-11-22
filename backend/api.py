@@ -41,8 +41,19 @@ def login_user():
     print(data)
 
     # TODO add database verification
+    username = data['username']
+    password = data['password']
 
-    return 'JSON posted'
+    try:
+        # get the favourite stocks given an id
+        user = list(db.session.execute('SELECT * FROM users WHERE users.username = "' + str(username) + '" AND users.password = "' + str(password) + '";'))
+    except:
+        return "Error retrieving from database"
+
+    if len(user) < 1:
+        return "The username or password you have entered is incorrect"
+    else:
+        return "Welcome " + str(user[0].firstname) + " " + str(user[0].lastname)
 
 @app.route('/signup', methods=['PUT'])
 def signup_user():
