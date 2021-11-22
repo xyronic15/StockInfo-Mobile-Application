@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, duplicate_ignore
 
 import 'package:flutter/material.dart';
+import 'package:stocks_r_us/screens/home_screen/home_page.dart';
 import 'package:stocks_r_us/screens/signup_screen/signup_page.dart';
 import 'login.dart';
 
@@ -78,10 +79,24 @@ class WelcomePage extends StatelessWidget {
                                     child: GestureDetector(
                                         onTap: () {
                                           userLogin(
-                                              usernameController.text
-                                                  .toString(),
-                                              passwordController.text
-                                                  .toString());
+                                                  usernameController.text
+                                                      .toString(),
+                                                  passwordController.text
+                                                      .toString())
+                                              .then((result) {
+                                            if (result.statusCode != 400) {
+                                              Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                      builder: (context) => HomePage(
+                                                          username:
+                                                              usernameController
+                                                                  .text
+                                                                  .toString())));
+                                            } else {
+                                              print(result.message);
+                                              // TODO handle error
+                                            }
+                                          });
                                         },
                                         child: Center(
                                             child: Text(

@@ -44,13 +44,24 @@ def get_user():
 
 @app.route('/login', methods=['POST'])
 def login_user():
-    print(request.is_json)
     data = request.get_json()
-    print(data)
 
-    # TODO add database verification
+    username = data['username']
+    password = data['password']
 
-    return 'JSON posted'
+    user = User.query.filter_by(username = username, password = password).first()
+    if user:
+        return {
+            'message': "Login Successful",
+            'status': 200
+        }, 200
+    else:
+        return {
+            'message': 'Login Error',
+            'status': 400
+            }, 400
+
+
 
 @app.route('/signup', methods=['PUT'])
 def signup_user():
