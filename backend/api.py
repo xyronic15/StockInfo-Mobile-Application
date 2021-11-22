@@ -6,6 +6,7 @@ from sqlalchemy.orm import backref
 import json
 import datetime as dt
 import yfinance as yf
+import time
 
 
 app = Flask(__name__)
@@ -140,14 +141,19 @@ def list_fav():
     try:
         # get the favourite stocks given an id
         fav_iter = db.session.execute('SELECT stocks.name, stocks.ticker FROM favorites INNER JOIN stocks ON favorites.stockID = stocks.id WHERE favorites.userID = ' + str(id) + ';')
-        fav_list = []
-        for fav in fav_iter:
-            fav_list.append({'name': fav.name, 'ticker': fav.ticker})
-
-        # convert to json and return
-        return json.dumps(fav_list, indent=4)
     except :
-        pass
+        return
+    
+    fav_list = []
+    for fav in fav_iter:
+        # start = time.time()
+        current = curr_price(fav.ticker)
+        # elapsed_time = time.time() - start
+        # print("Time taken: " + str(elapsed_time))
+        fav_list.append({'name': fav.name, 'ticker': fav.ticker, 'current': current})
+
+    # convert to json and return
+    return json.dumps(fav_list, indent=4)
 
 
 @app.route('/add_fav', methods=['PUT'])
@@ -171,6 +177,15 @@ def add_fav():
         return 'New favorite added', 200
     except :
         return 'Error adding new user', 400
+
+# helper function to retrieve current price
+def curr_price(ticker):
+    stock_info = yf.Ticker(ticker).info['regularMarketPrice']
+    # print(stock_info.keys())
+
+    # print(stock_info['regularMarketPrice'])
+    # return stock_info['regularMarketPrice']
+    return stock_info
 
 ####
 
