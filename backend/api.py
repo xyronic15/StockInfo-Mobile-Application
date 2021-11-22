@@ -150,6 +150,28 @@ def list_fav():
         pass
 
 
+@app.route('/add_fav', methods=['PUT'])
+def add_fav():
+    print(request.is_json)
+    data = request.get_json()
+
+    uID = data['userID']
+    sID = data['stockID']
+
+    # create a new favorite
+    new_fav = Favorite (
+        userID = uID,
+        stockID = sID
+    )
+
+    # add the favorite to the db
+    try:
+        db.session.add(new_fav)
+        db.session.commit()
+        return 'New favorite added', 200
+    except :
+        return 'Error adding new user', 400
+
 ####
 
 if __name__ == '__main__':
