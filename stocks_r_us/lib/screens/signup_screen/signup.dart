@@ -1,8 +1,6 @@
-import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:stocks_r_us/ResponseBuilder.dart';
+import 'dart:convert';
 
 Future<ResponseBuilder> userSignup(String first, String last, String email,
     String username, String password) async {
@@ -30,10 +28,10 @@ Future<ResponseBuilder> userSignup(String first, String last, String email,
         "password": password
       }));
 
-  // final status = response.statusCode;
-  // final message = response.body;
-  // print("STATUS CODE ========= ${status}");
-  // print("MESSAGE ==== ${message}");
+  final status = response.statusCode;
+  final message = response.body;
+  print("STATUS CODE ========= ${status}");
+  print("MESSAGE ==== ${message}");
 
   if (response.statusCode == 200) {
     return ResponseBuilder.fromJson(jsonDecode(response.body));

@@ -112,7 +112,10 @@ class SignupPage extends StatelessWidget {
                                             Navigator.of(context).push(
                                                 MaterialPageRoute(
                                                     builder: (context) =>
-                                                        HomePage()));
+                                                        HomePage(
+                                                          // usernmae: userController.text.toString(),
+                                                          username: "admin",
+                                                        )));
                                           } else {
                                             print(resultData.message);
                                           }
