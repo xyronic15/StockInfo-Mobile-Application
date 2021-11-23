@@ -6,7 +6,6 @@ from sqlalchemy.orm import backref
 import json
 import datetime as dt
 import yfinance as yf
-import time
 
 
 app = Flask(__name__)
@@ -33,27 +32,36 @@ class User(db.Model):
             "username": self.username,
             "password": self.password
         }
+
+@app.route('/get_user', methods=['GET'])
+def get_user():
+    user_name = request.args.get('username')
+
+    user = User.query.filter_by(username = user_name).first()
+    return json.dumps({"id": user.id})
     
+
+
 @app.route('/login', methods=['POST'])
 def login_user():
-    print(request.is_json)
     data = request.get_json()
-    print(data)
 
-    # TODO add database verification
     username = data['username']
     password = data['password']
 
-    try:
-        # get the favourite stocks given an id
-        user = list(db.session.execute('SELECT * FROM users WHERE users.username = "' + str(username) + '" AND users.password = "' + str(password) + '";'))
-    except:
-        return "Error retrieving from database"
-
-    if len(user) < 1:
-        return "The username or password you have entered is incorrect"
+    user = User.query.filter_by(username = username, password = password).first()
+    if user:
+        return {
+            'message': "Login Successful",
+            'status': 200
+        }, 200
     else:
-        return "Welcome " + str(user[0].firstname) + " " + str(user[0].lastname)
+        return {
+            'message': 'Login Error',
+            'status': 400
+            }, 400
+
+
 
 @app.route('/signup', methods=['PUT'])
 def signup_user():
@@ -79,9 +87,15 @@ def signup_user():
     try:
         db.session.add(new_user)
         db.session.commit()
-        return 'New user added', 200
+        return {
+            'message': 'New user added',
+            'status': 200
+            }, 200
     except:
-        return "Error adding new user", 400
+        return {
+            'message': 'Error adding user',
+            'status': 400
+            }, 400
 
 ####
 
@@ -102,7 +116,7 @@ def list_all_stocks():
         stocks_iter = db.session.query(Stock).all()
         stocks_list = []
         for stock in stocks_iter:
-            stocks_list.append({'name': stock.name, 'ticker': stock.ticker})
+            stocks_list.append({'id': stock.id, 'name': stock.name, 'ticker': stock.ticker})
         
         # convert to json and return
         return json.dumps(stocks_list, indent=4)
@@ -161,33 +175,10 @@ def list_fav():
         current = curr_price(fav.ticker)
         # elapsed_time = time.time() - start
         # print("Time taken: " + str(elapsed_time))
-        fav_list.append({'name': fav.name, 'ticker': fav.ticker, 'current': current})
+        fav_list.append({'name': fav.name, 'ticker': fav.ticker, 'id': fav.id, 'current': current})
 
     # convert to json and return
-    return json.dumps(fav_list, indent=4)
-
-
-@app.route('/add_fav', methods=['PUT'])
-def add_fav():
-    print(request.is_json)
-    data = request.get_json()
-
-    uID = data['userID']
-    sID = data['stockID']
-
-    # create a new favorite
-    new_fav = Favorite (
-        userID = uID,
-        stockID = sID
-    )
-
-    # add the favorite to the db
-    try:
-        db.session.add(new_fav)
-        db.session.commit()
-        return 'New favorite added', 200
-    except :
-        return 'Error adding new user', 400
+    return json.dumps(fav_list, indent=4), 200
 
 # helper function to retrieve current price
 def curr_price(ticker):
@@ -200,6 +191,38 @@ def curr_price(ticker):
 
 ####
 
+@app.route('/add_fav', methods=['PUT'])
+def add_fav():
+    print(request.is_json)
+    data = request.get_json()
+
+    uID = data['userID']
+    sID = data['stockID']
+
+    print("UserID === ", uID)
+    print("StockID === ", sID)
+    
+    # create a new favorite
+    new_fav = Favorite (
+        userID = uID,
+        stockID = sID
+    )
+
+    # add the favorite to the db
+    try:
+        db.session.add(new_fav)
+        db.session.commit()
+        return {
+            'message': 'New favorite added',
+            'status': 200
+            }, 200
+    except :
+        return {
+            'message': 'Error adding new favorite',
+            'status': 400
+            }, 400
+
+####
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)
-
