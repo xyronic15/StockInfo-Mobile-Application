@@ -201,6 +201,13 @@ def add_fav():
 
     print("UserID === ", uID)
     print("StockID === ", sID)
+
+    # check if the favorite already exists
+    if Favorite.query.filter_by(userID = uID, stockID = sID).first():
+        return {
+            'message': 'Favorite exists',
+            'status': 200
+        }, 200
     
     # create a new favorite
     new_fav = Favorite (
