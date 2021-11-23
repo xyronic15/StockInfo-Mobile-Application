@@ -165,15 +165,31 @@ def list_fav():
     id = request.args.get('id')
     try:
         # get the favourite stocks given an id
-        fav_iter = db.session.execute('SELECT stocks.name, stocks.ticker, stocks.id FROM favorites INNER JOIN stocks ON favorites.stockID = stocks.id WHERE favorites.userID = ' + str(id) + ';')
-        fav_list = []
-        for fav in fav_iter:
-            fav_list.append({'name': fav.name, 'ticker': fav.ticker, 'id': fav.id})
-
-        # convert to json and return
-        return json.dumps(fav_list), 200
+        fav_iter = db.session.execute('SELECT stocks.name, stocks.ticker FROM favorites INNER JOIN stocks ON favorites.stockID = stocks.id WHERE favorites.userID = ' + str(id) + ';')
     except :
-        pass
+        return
+    
+    fav_list = []
+    for fav in fav_iter:
+        # start = time.time()
+        current = curr_price(fav.ticker)
+        # elapsed_time = time.time() - start
+        # print("Time taken: " + str(elapsed_time))
+        fav_list.append({'name': fav.name, 'ticker': fav.ticker, 'id': fav.id, 'current': current})
+
+    # convert to json and return
+    return json.dumps(fav_list, indent=4), 200
+
+# helper function to retrieve current price
+def curr_price(ticker):
+    stock_info = yf.Ticker(ticker).info['regularMarketPrice']
+    # print(stock_info.keys())
+
+    # print(stock_info['regularMarketPrice'])
+    # return stock_info['regularMarketPrice']
+    return stock_info
+
+####
 
 @app.route('/add_fav', methods=['PUT'])
 def add_fav():
@@ -185,6 +201,13 @@ def add_fav():
 
     print("UserID === ", uID)
     print("StockID === ", sID)
+
+    # check if the favorite already exists
+    if Favorite.query.filter_by(userID = uID, stockID = sID).first():
+        return {
+            'message': 'Favorite exists',
+            'status': 200
+        }, 200
     
     # create a new favorite
     new_fav = Favorite (
