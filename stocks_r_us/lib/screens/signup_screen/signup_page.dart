@@ -113,8 +113,10 @@ class SignupPage extends StatelessWidget {
                                                 MaterialPageRoute(
                                                     builder: (context) =>
                                                         HomePage(
-                                                          // usernmae: userController.text.toString(),
-                                                          username: "admin",
+                                                          username:
+                                                              userController
+                                                                  .text
+                                                                  .toString(),
                                                         )));
                                           } else {
                                             print(resultData.message);

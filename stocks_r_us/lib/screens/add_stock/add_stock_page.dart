@@ -84,10 +84,27 @@ class _AddStockScreenState extends State<AddStockScreen> {
                             onPressed: () {
                               addFavourite(
                                       widget.username, filteredStocks[index].id)
-                                  .then((value) => Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                          builder: (context) => HomePage(
-                                              username: widget.username))));
+                                  .then((value) {
+                                if (value.statusCode == 400) {
+                                  Navigator.pop(context);
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) =>
+                                          AlertDialog(
+                                            title: Text("Error adding stock"),
+                                            actions: [
+                                              TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(context),
+                                                  child: Text("Okay"))
+                                            ],
+                                          ));
+                                } else {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) =>
+                                          HomePage(username: widget.username)));
+                                }
+                              });
                             },
                             child: Text('Add'))
                       ],

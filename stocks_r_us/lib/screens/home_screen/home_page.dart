@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: Text("Welcome"),
+          title: Text("Welcome $widget.username"),
         ),
         body: Column(
           children: [

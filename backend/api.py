@@ -165,7 +165,7 @@ def list_fav():
     id = request.args.get('id')
     try:
         # get the favourite stocks given an id
-        fav_iter = db.session.execute('SELECT stocks.name, stocks.ticker FROM favorites INNER JOIN stocks ON favorites.stockID = stocks.id WHERE favorites.userID = ' + str(id) + ';')
+        fav_iter = db.session.execute('SELECT stocks.name, stocks.ticker, stocks.id FROM favorites INNER JOIN stocks ON favorites.stockID = stocks.id WHERE favorites.userID = ' + str(id) + ';')
     except :
         return
     
@@ -206,8 +206,8 @@ def add_fav():
     if Favorite.query.filter_by(userID = uID, stockID = sID).first():
         return {
             'message': 'Favorite exists',
-            'status': 200
-        }, 200
+            'status': 400
+        }, 400
     
     # create a new favorite
     new_fav = Favorite (
