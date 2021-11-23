@@ -116,7 +116,7 @@ def list_all_stocks():
         stocks_iter = db.session.query(Stock).all()
         stocks_list = []
         for stock in stocks_iter:
-            stocks_list.append({'name': stock.name, 'ticker': stock.ticker})
+            stocks_list.append({'id': stock.id, 'name': stock.name, 'ticker': stock.ticker})
         
         # convert to json and return
         return json.dumps(stocks_list, indent=4)
@@ -165,16 +165,46 @@ def list_fav():
     id = request.args.get('id')
     try:
         # get the favourite stocks given an id
-        fav_iter = db.session.execute('SELECT stocks.name, stocks.ticker FROM favorites INNER JOIN stocks ON favorites.stockID = stocks.id WHERE favorites.userID = ' + str(id) + ';')
+        fav_iter = db.session.execute('SELECT stocks.name, stocks.ticker, stocks.id FROM favorites INNER JOIN stocks ON favorites.stockID = stocks.id WHERE favorites.userID = ' + str(id) + ';')
         fav_list = []
         for fav in fav_iter:
-            fav_list.append({'name': fav.name, 'ticker': fav.ticker})
+            fav_list.append({'name': fav.name, 'ticker': fav.ticker, 'id': fav.id})
 
         # convert to json and return
         return json.dumps(fav_list), 200
     except :
         pass
 
+@app.route('/add_fav', methods=['PUT'])
+def add_fav():
+    print(request.is_json)
+    data = request.get_json()
+
+    uID = data['userID']
+    sID = data['stockID']
+
+    print("UserID === ", uID)
+    print("StockID === ", sID)
+    
+    # create a new favorite
+    new_fav = Favorite (
+        userID = uID,
+        stockID = sID
+    )
+
+    # add the favorite to the db
+    try:
+        db.session.add(new_fav)
+        db.session.commit()
+        return {
+            'message': 'New favorite added',
+            'status': 200
+            }, 200
+    except :
+        return {
+            'message': 'Error adding new favorite',
+            'status': 400
+            }, 400
 
 ####
 
