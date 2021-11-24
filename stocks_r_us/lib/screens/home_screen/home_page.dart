@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:stocks_r_us/screens/add_stock/add_stock_page.dart';
+import 'package:stocks_r_us/screens/add_stock/getStock.dart';
 import 'package:stocks_r_us/screens/home_screen/init.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,8 +19,10 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     print(widget.username);
     getFavourites(widget.username).then((result) {
-      print("RESULTS =====> $result");
-      favStocks = result;
+      setState(() {
+        print("RESULTS =====> $result");
+        favStocks = result;
+      });
     });
     super.initState();
   }
@@ -30,7 +33,7 @@ class _HomePageState extends State<HomePage> {
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: Text("Welcome $widget.username"),
+          title: Text("Welcome"),
         ),
         body: Column(
           children: [
@@ -76,20 +79,39 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildList() {
-    return FutureBuilder(
-      builder: (context, projectSnap) {
-        return ListView.separated(
-            separatorBuilder: (BuildContext context, int index) {
-              return SizedBox(height: 10);
-            },
-            padding: EdgeInsets.only(left: 30, right: 30),
-            physics: ScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: favStocks.length,
-            itemBuilder: (context, index) => buildStockCard(context, index));
-      },
-      future: getFavourites(widget.username),
-    );
+    return ListView.separated(
+        separatorBuilder: (BuildContext context, int index) {
+          return SizedBox(height: 10);
+        },
+        padding: EdgeInsets.only(left: 30, right: 30),
+        physics: ScrollPhysics(),
+        shrinkWrap: true,
+        itemCount: favStocks.length,
+        itemBuilder: (context, index) => GestureDetector(
+              child: buildStockCard(context, index),
+              key: ValueKey(favStocks[index].id),
+              onLongPress: () => showDialog(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                        title: Text(
+                            "Are you sure you want to delete ${favStocks[index].name} from your favorites?"),
+                        actions: [
+                          TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text('Cancel')),
+                          TextButton(
+                              onPressed: () => removeFavourite(
+                                          widget.username, favStocks[index].id)
+                                      .then((result) {
+                                    setState(() {
+                                      favStocks.removeAt(index);
+                                      Navigator.of(context).pop();
+                                    });
+                                  }),
+                              child: Text('Confirm'))
+                        ],
+                      )),
+            ));
   }
 
   Widget buildStockCard(BuildContext context, int idx) {

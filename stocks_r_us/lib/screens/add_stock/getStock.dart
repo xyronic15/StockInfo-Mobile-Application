@@ -49,3 +49,27 @@ Future<ResponseBuilder> addFavourite(String username, int stockId) async {
 
   return ResponseBuilder(message: "Error adding new favorite", statusCode: 400);
 }
+
+Future<ResponseBuilder> removeFavourite(String username, int stockId) async {
+  final String getIdEndpoint = 'http://10.0.0.115:5000/get_user';
+  final idResponse =
+      await http.get(Uri.parse("$getIdEndpoint?username=$username"));
+
+  print(jsonDecode(idResponse.body));
+  UserId user = UserId.fromJson(jsonDecode(idResponse.body));
+
+  final id = user.id;
+
+  final response =
+      await http.delete(Uri.parse("http://10.0.0.115:5000/remove_fav"),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode(<String, int>{"userID": id, "stockID": stockId}));
+
+  if (response.statusCode == 200) {
+    return ResponseBuilder.fromJson(jsonDecode(response.body));
+  }
+
+  return ResponseBuilder(message: "Error adding new favorite", statusCode: 400);
+}

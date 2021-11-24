@@ -191,6 +191,21 @@ def curr_price(ticker):
 
 ####
 
+@app.route('/remove_fav', methods=['DELETE'])
+def remove_fav():
+    data = request.get_json()
+
+    uID = data['userID']
+    sID = data['stockID']
+
+    stat = db.session.execute('delete from favorites where userID=' + str(uID) + ' and stockID=' + str(sID) + ';')
+    db.session.commit()
+
+    return {
+        "message": "stock deleted",
+        "status": 200
+    }, 200
+
 @app.route('/add_fav', methods=['PUT'])
 def add_fav():
     print(request.is_json)
