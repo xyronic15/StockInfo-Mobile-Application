@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:stocks_r_us/screens/add_stock/add_stock_page.dart';
 import 'package:stocks_r_us/screens/add_stock/getStock.dart';
+import 'package:stocks_r_us/screens/display_stock_screen/display_stock_page.dart';
 import 'package:stocks_r_us/screens/home_screen/init.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,7 +18,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    print(widget.username);
     getFavourites(widget.username).then((result) {
       setState(() {
         print("RESULTS =====> $result");
@@ -29,6 +29,14 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (favStocks == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text("Welcome"),
+        ),
+        body: CircularProgressIndicator(),
+      );
+    }
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
@@ -73,7 +81,9 @@ class _HomePageState extends State<HomePage> {
                                     AddStockScreen(username: widget.username)));
                       },
                     ))),
-            Expanded(child: buildList())
+            Container(
+              child: Expanded(child: buildList()),
+            )
           ],
         ));
   }
@@ -90,6 +100,13 @@ class _HomePageState extends State<HomePage> {
         itemBuilder: (context, index) => GestureDetector(
               child: buildStockCard(context, index),
               key: ValueKey(favStocks[index].id),
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => DisplayStockScreen(
+                          stockId: favStocks[index].id,
+                          stockName: favStocks[index].name,
+                          stockTicker: favStocks[index].ticker))),
               onLongPress: () => showDialog(
                   context: context,
                   builder: (BuildContext context) => AlertDialog(

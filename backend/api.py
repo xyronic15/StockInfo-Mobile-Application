@@ -191,6 +191,22 @@ def curr_price(ticker):
 
 ####
 
+@app.route('/get_data', methods=['GET'])
+def get_data():
+    ticker = request.args.get('ticker')
+    
+    stock = yf.Ticker(ticker)
+
+    return {
+        "currentPrice": stock.info["currentPrice"],
+        "dayHigh": stock.info["dayHigh"],
+        "dayLow": stock.info["dayLow"],
+        "open": stock.info["open"],
+        "sector": stock.info["sector"],
+        "logo": stock.info["logo_url"],
+        "dividendYield": stock.info["dividendYield"]
+    }, 200
+
 @app.route('/remove_fav', methods=['DELETE'])
 def remove_fav():
     data = request.get_json()
